@@ -1,0 +1,259 @@
+<!doctype html>
+<html class="no-js" lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<title>Qurossword - A javascript crossword puzzle plugin</title>
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+	<script src="socket.io/socket.io.js"></script>
+	<script src="client/js/jquery.crossword.js"></script>
+	<script src="client/js/client.js"></script>
+	<script src="client/js/script.js"></script>
+	<style type="text/css" media="screen">
+		/*
+		Default puzzle styling
+	*/
+
+		body {
+			font: 62.5%/1.3em Helvetica, sans-serif;
+			width: 90.3%;
+			margin: 10px auto;
+		}
+
+		table {
+			border-collapse: collapse;
+			border-spacing: 0;
+			max-width: 100%;
+		}
+
+		table tr {
+			width: 100%;
+		}
+
+		table td {
+			width: 5em;
+			height: 5em;
+			border: 1px solid #cdcdcd;
+			padding: 0;
+			margin: 0;
+			background-color: #333;
+			position: relative;
+		}
+
+		td input {
+			width: 100%;
+			height: 100%;
+			padding: 0em;
+			border: none;
+			text-align: center;
+			font-size: 3em;
+			color: #666;
+			background-color: #f4f4f4;
+		}
+
+		td input:focus {
+			background-color: #fff;
+		}
+
+		td span {
+			color: #444;
+			font-size: 0.8em;
+			position: absolute;
+			top: -1px;
+			left: 1px;
+		}
+
+		input.done {
+			font-weight: bold;
+			color: green;
+		}
+
+		.active,
+		.clues-active {
+			background-color: #ddd;
+		}
+
+		.clue-done {
+			color: #999;
+			text-decoration: line-through;
+		}
+
+		#puzzle-wrapper {
+			float: left;
+			width: 54%;
+			margin-right: 3%;
+
+		}
+
+		#puzzle-clues {
+			float: left;
+			width: 40%;
+		}
+
+		#puzzle-clues li {
+			font-size: 1.2em;
+			margin: .3em;
+			line-height: 1.6em;
+		}
+
+		.player {
+			font-size: 20px;
+		}
+
+		.div1 {
+			width: 350px;
+			height: 100px;
+			border: 1px solid blue;
+			clear: both;
+			float: right;
+			position: fixed;
+			right: 10px;
+			top: 510px;
+			font-size: 15px;
+		}
+
+		.div2 {
+			width: 350px;
+			height: 80px;
+			border: 1px solid red;
+			clear: both;
+			float: right;
+			position: absolute;
+			right: 10px;
+			top: 420px;
+			font-size: 19px;
+		}
+
+		#winn {
+			font-size: 100px;
+			text-align: center;
+			display: none;
+			background: orange;
+			height: 50%;
+			width: 94%;
+			z-index: 100;
+			width: 94% opacity: 0.2;
+			position: relative;
+			top: 250px;
+
+		}
+
+		#wa {
+			opacity: 0.2;
+		}
+
+		#waiting {
+			z-index: 100;
+			font-size: 40px;
+			text-align: center;
+			margin: 200px auto;
+			display: none;
+			position: relative;
+		}
+
+		#player1 {
+			width: 150px;
+			float: right;
+			text-align: center;
+		}
+
+		#player1_area {
+			height: 210px;
+			padding: 30px;
+			clear: both;
+		}
+
+		h4 {
+			padding: 0;
+			margin: 0;
+		}
+
+		#player2 {
+			width: 180px;
+			float: left;
+			text-align: center;
+		}
+
+		#player2_area {
+
+			height: 210px;
+			padding: 30px;
+		}
+
+		#Wow {
+			color: orange;
+			font-size: 15px;
+
+		}
+
+		#Time {
+			color: red;
+			font-size: 15px;
+
+		}
+	</style>
+
+</head>
+
+<body>
+
+	<script>
+		$(document).ready(function () {
+			if ($("#Winname").val() != null) {
+				$("#winn").show();
+				$("#winn").css("color", "red").slideDown("slow");
+			} else{
+			 $("#winn").hide();	
+			}
+		});
+	</script>
+	<span id="totalPlayer" style="color:#fff"></span>
+	<div id="winn">
+		<span id="Win"></span>
+		<span id="Winname"></span>
+		<span id="WinScore"></span>
+		<span id="msg"></span>
+	</div>
+
+	<div id="puzzle-wrapper">
+		<!-- crossword puzzle appended here -->
+		<div class="player">
+			YOU' RE Player
+			<span id="name"></span>
+			<!--	:<span id="score"></span>  -->
+		</div>
+		<br>
+		<br>
+	</div>
+
+
+	<div class="div2">
+		ลำดับของผู้เล่นที่: &nbsp;&nbsp;&nbsp;
+		<span id="Wow">1 </span>
+		<p id="q"></p>
+		<br>
+		<br> เวลาที่เหลือ: &nbsp;&nbsp;&nbsp;
+		<span id="Time"></span>
+	</div>
+
+	<div class="div1">
+		<div id="player1">
+			<div id="player1_area">
+				<h4>player1</h4>
+				<div id="p1_score">'0 points'</div>
+			</div>
+			<!--input(type="text", name="player1_ip")-->
+		</div>
+		<div id="player2">
+			<div id="player2_area">
+				<h4>player2</h4>
+				<div id="p2_score">'0 points'</div>
+			</div>
+		</div>
+	</div>
+
+</body>
+
+</html>
